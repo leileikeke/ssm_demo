@@ -6,7 +6,7 @@ spring和springMVC是天然集成,所以只需要解决mybatis和spring整合的
 
 - 由spring容器管理mybatis和mapper.
 - 由spring利用声明式事物(==AOP==)进行事物综合管理.
-
+## ssm整合目录
 ![目录结构](imgs/ssm整合目录结构.png)
 
 ## pom.xml
