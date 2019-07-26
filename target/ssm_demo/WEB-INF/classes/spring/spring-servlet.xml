@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.3.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.3.xsd">
+
+    <!-- 启动注解 排除service注解 -->
+    <context:component-scan base-package="com.leike">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Service"/>
+    </context:component-scan>
+    <!--配置一个视图解析器
+        常用内部资源视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 1. 前缀-->
+        <property name="prefix" value="/jsp/"/>
+        <!-- 2. 后缀-->
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--文件上传解析器,
+        id必须是multipartResolver原因是源码写死为这个名字-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--定义最大长度的大小 总的  单位为  bytes-->
+        <property name="maxUploadSize" value="10241024"/>
+        <!--指定上传编码-->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!--指定单个文件最大上传大小-->
+        <property name="maxUploadSizePerFile" value="2000000"/>
+    </bean>
+    
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**/*"/>
+            <bean class="com.leike.interceptors.MethodTimerInterceptor"></bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!--
+                只想拦截/user/**/*
+                还需要开放登录权限       静态资源的权限
+            -->
+            <mvc:mapping path="/user/*"/>
+            <!--排除登录的这个URI-->
+            <mvc:exclude-mapping path="/user/login"/>
+            <bean class="com.leike.interceptors.SessionInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    <!--默认的servlet处理者  静态资源处理
+        只加这个的话相当于全部让他处理了-->
+    <mvc:default-servlet-handler/>
+    <!-- MVC驱动
+         为了让controller生效,要加这个注解驱动
+         激活springmvc消息转换功能-->
+    <mvc:annotation-driven/>
+    <!--    <mvc:resources mapping="/static/css/*" location="/static/css/"/>-->
+</beans>
